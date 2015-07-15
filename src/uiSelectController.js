@@ -141,18 +141,28 @@ uis.controller('uiSelectCtrl',
     ctrl.isGrouped = !!groupByExp;
     ctrl.itemProperty = ctrl.parserResult.itemName;
 
-    ctrl.refreshItems = function (data){
-      data = data || ctrl.parserResult.source($scope);
-      var selectedItems = ctrl.selected;
-      //TODO should implement for single mode removeSelected
-      if ((angular.isArray(selectedItems) && !selectedItems.length) || !ctrl.removeSelected) {
-        ctrl.setItemsFn(data);
-      }else{
-        if ( data !== undefined ) {
-          var filteredItems = data.filter(function(i) {return selectedItems.indexOf(i) < 0;});
-          ctrl.setItemsFn(filteredItems);
-        }
-      }
+    ctrl.refreshItems = function (data) {
+    	data = data || ctrl.parserResult.source($scope);
+    	var selectedItems = ctrl.selected;
+    	//TODO should implement for single mode removeSelected
+    	if ((angular.isArray(selectedItems) && !selectedItems.length) || !ctrl.removeSelected) {
+    		ctrl.setItemsFn(data);
+    	} else {
+    		/*
+			 bug fix by Shawn Dotey 07-15-2015
+			 ctrl.refreshItems generates TypeError: Cannot read property 'indexOf' of undefined
+			 -- added [&& selectedItems] to criteria.  this allows an empty value to assign to selectedItems
+			 Prior code:
+			 if (data !== undefined ) {
+				  var filteredItems = data.filter(function(i) {return selectedItems.indexOf(i) < 0;});
+				  ctrl.setItemsFn(filteredItems);
+				}
+		 */
+    		if (data !== undefined && selectedItems) {
+    			var filteredItems = data.filter(function (i) { return selectedItems.indexOf(i) < 0; });
+    			ctrl.setItemsFn(filteredItems);
+    		}
+    	}
     };
 
     // See https://github.com/angular/angular.js/blob/v1.2.15/src/ng/directive/ngRepeat.js#L259
@@ -514,7 +524,7 @@ uis.controller('uiSelectCtrl',
     }
   }
 
-  $scope.$on('$destroy', function() {
+  $scope.$on('$destroy', function() {sh
     ctrl.searchInput.off('keyup keydown tagged blur paste');
   });
 
