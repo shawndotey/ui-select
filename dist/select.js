@@ -384,8 +384,18 @@ uis.controller('uiSelectCtrl',
       //TODO should implement for single mode removeSelected
       if ((angular.isArray(selectedItems) && !selectedItems.length) || !ctrl.removeSelected) {
         ctrl.setItemsFn(data);
-      }else{
-        if ( data !== undefined ) {
+      } else {
+		/*
+		 bug fix by Shawn Dotey 07-15-2015
+		 ctrl.refreshItems generates TypeError: Cannot read property 'indexOf' of undefined
+		 -- added [&& selectedItems] to criteria.  this allows an empty value to assign to selectedItems
+		 Prior code:
+		 if (data !== undefined ) {
+			  var filteredItems = data.filter(function(i) {return selectedItems.indexOf(i) < 0;});
+			  ctrl.setItemsFn(filteredItems);
+			}
+		 */
+      	if (data !== undefined && selectedItems) {
           var filteredItems = data.filter(function(i) {return selectedItems.indexOf(i) < 0;});
           ctrl.setItemsFn(filteredItems);
         }
@@ -1143,7 +1153,13 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
       };
 
-      ctrl.getPlaceholder = function(){
+      ctrl.getPlaceholder = function () {
+      	/*
+			  Bug fix by Shawn Dotey 07-15-2015 (https://github.com/shawndotey/ui-select)
+			  when nothing is selected ( scope's model is empty) , 
+			  this generates a TypeError: Cannot read property 'length' of undefined 
+		  */
+      	if (!$select.selected) return;
         //Refactor single?
         if($select.selected.length) return;
         return $select.placeholder;
