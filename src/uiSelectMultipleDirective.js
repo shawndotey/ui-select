@@ -54,10 +54,17 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
 
       };
 
-      ctrl.getPlaceholder = function(){
-        //Refactor single?
-        if($select.selected.length) return;
-        return $select.placeholder;
+      ctrl.getPlaceholder = function () {
+      	/*
+			Bug fix by Shawn Dotey 07-15-2015 (https://github.com/shawndotey/ui-select)
+			when nothing is selected ( scope's model is empty) , 
+			this generates a TypeError: Cannot read property 'length' of undefined 
+		*/
+      	// return empty if no values are loaded
+      	if (!$select.selected) return;
+      	//Refactor single?
+      	if ($select.selected.length) return;
+      	return $select.placeholder;
       };
 
 
